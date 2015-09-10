@@ -1,32 +1,50 @@
 import sqlalchemy as sa
 
+from stemming.porter2 import stem
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 
 
+class SalesforceAccount(Base):
+    __tablename__ = 'salesforce_account_dimension_source'
+
+    dimension_id = sa.Column('account_dimension_id', sa.Integer, primary_key=True)
+    account_id = sa.Column(sa.String, nullable=False)
+    case_safe_id = sa.Column(sa.String, nullable=False)
+    name = sa.Column(sa.String)
+    url = sa.Column('website', sa.String)
+
+
 class Company(Base):
     __tablename__ = 'companies'
+    __table_args__ = {'schema': 'dedup'}
+
+    CORPORATE_SUFFIXES = {'llc', 'llp', 'corp', 'inc', 'ltd', 'spa', 'co', 'lp'}
 
     _id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String, index=True, nullable=False)
-    url = sa.Column(sa.String, index=True, default='')
-    loc_key = sa.Column(sa.String, index=True)
-    state = sa.Column(sa.String, default='')
-    city = sa.Column(sa.String, default='')
-    postal_code = sa.Column(sa.String, default='')
+    name = sa.Column(sa.String, nullable=False)
+    key = sa.Column(sa.String, index=True, nullable=False)
+    dimension_id = sa.Column(sa.Integer, sa.ForeignKey(SalesforceAccount.dimension_id), index=True)
 
     def __init__(self, *args, **kwargs):
         super(Company, self).__init__(*args, **kwargs)
-        self.loc_key = self.build_loc_key(self.state,
-                                          self.city,
-                                          self.postal_code)
+        self.key = ''.join(stem(s) for s in self.name.split())
 
-    @staticmethod
-    def build_loc_key(state=None, city=None, postal_code=None):
-        return '{}{}{}'.format(state or '_',
-                               city or '_',
-                               postal_code or '_')\
-            .lower()\
-            .replace(' ', '')
+
+class URL(Base):
+    __tablename__ = 'urls'
+    __table_args__ = {'schema': 'dedup'}
+
+    _id = sa.Column(sa.Integer, primary_key=True)
+    domain = sa.Column(sa.String, index=True)
+    path = sa.Column(sa.String)
+
+
+class CompanyURL(Base):
+    __tablename__ = 'company_urls'
+    __table_args__ = {'schema': 'dedup'}
+
+    url_id = sa.Column(sa.Integer, sa.ForeignKey(URL._id), primary_key=True)
+    company_id = sa.Column(sa.Integer, sa.ForeignKey(Company._id), primary_key=True)

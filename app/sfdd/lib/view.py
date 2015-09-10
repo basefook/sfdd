@@ -1,9 +1,15 @@
-import jsl
+import pyramid.view
 
 from jsonschema import (
     ValidationError as JsonValidationError,
     validate as validate_json
 )
+
+
+class View(object):
+    def __init__(self, context, request):
+        self.request = request
+        self.context = context
 
 
 class json_body(object):
@@ -33,10 +39,9 @@ class json_body(object):
         return json_validator
 
 
-class json_schemas(object):
-    class CompanyJsonSchema(jsl.Document):
-        name = jsl.StringField(required=True)
-        url = jsl.StringField(required=False)
-        state = jsl.StringField(required=False)
-        city = jsl.StringField(required=False)
-        postal_code = jsl.StringField(required=False)
+def api_defaults(renderer='json', *args, **kwargs):
+    return pyramid.view.view_defaults(renderer=renderer, *args, **kwargs)
+
+
+def api_config(*args, **kwargs):
+    return pyramid.view.view_config(*args, **kwargs)

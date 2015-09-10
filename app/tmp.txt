@@ -1,0 +1,367 @@
+                Table "public.salesforce_account_dimension_source"
+                 Column                  |            Type             | Modifiers 
+-----------------------------------------+-----------------------------+-----------
+ account_dimension_id                    | integer                     | not null
+ account_id                              | character varying(15)       | not null
+ is_deleted                              | boolean                     | not null
+ master_record_id                        | character varying(64)       | 
+ name                                    | character varying(256)      | 
+ type                                    | character varying(32)       | 
+ record_type_id                          | character varying(32)       | 
+ parent_id                               | character varying(32)       | 
+ billing_street                          | character varying(512)      | 
+ billing_city                            | character varying(64)       | 
+ billing_state                           | character varying(32)       | 
+ billing_postal_code                     | character varying(32)       | 
+ billing_country                         | character varying(64)       | 
+ billing_latitude                        | character varying(64)       | 
+ billing_longitude                       | character varying(64)       | 
+ shipping_street                         | character varying(512)      | 
+ shipping_city                           | character varying(32)       | 
+ shipping_state                          | character varying(32)       | 
+ shipping_postal_code                    | character varying(32)       | 
+ shipping_country                        | character varying(32)       | 
+ shipping_latitude                       | character varying(64)       | 
+ shipping_longitude                      | character varying(64)       | 
+ phone                                   | character varying(64)       | 
+ fax                                     | character varying(32)       | 
+ website                                 | character varying(512)      | 
+ industry                                | character varying(64)       | 
+ annual_revenue                          | character varying(32)       | 
+ number_of_employees                     | integer                     | 
+ ownership                               | character varying(32)       | 
+ description                             | character varying(10000)    | 
+ sfdc_owner_id                           | character varying(32)       | 
+ account_owner_id                        | character varying(32)       | 
+ created_date                            | timestamp without time zone | 
+ created_by_id                           | character varying(32)       | 
+ last_modified_date                      | timestamp without time zone | 
+ last_modified_by_id                     | character varying(32)       | 
+ system_mod_timestamp                    | character varying(32)       | 
+ last_activity_date                      | timestamp without time zone | 
+ last_viewed_date                        | timestamp without time zone | 
+ last_referenced_date                    | timestamp without time zone | 
+ jigsaw                                  | integer                     | 
+ jigsaw_company_id                       | integer                     | 
+ account_source                          | character varying(32)       | 
+ duns_number                             | integer                     | 
+ trade_style                             | character varying(128)      | 
+ naics_code                              | integer                     | 
+ naics_desc                              | character varying(128)      | 
+ year_started                            | integer                     | 
+ sic_desc                                | character varying(64)       | 
+ edit_account_record_type                | character varying(256)      | 
+ client_development_super_50_account     | boolean                     | 
+ account_health                          | character varying(32)       | 
+ ciq_company_id                          | character varying(32)       | 
+ first_deal_self_serve                   | boolean                     | 
+ total_pursuits_2013                     | character varying(32)       | 
+ jsimpacts_added_from_data_com           | character varying(32)       | 
+ ciq_industry_screen                     | character varying(32)       | 
+ company_type_advisor                    | character varying(64)       | 
+ company_type_buyer                      | character varying(64)       | 
+ company_type_company                    | character varying(64)       | 
+ intro_1                                 | boolean                     | 
+ intro_2                                 | boolean                     | 
+ jsimpacts_data_com_managed              | character varying(32)       | 
+ company_type_master                     | character varying(64)       | 
+ jsimpacts_data_com_matched              | character varying(32)       | 
+ intro_3                                 | boolean                     | 
+ total_members_with_pursuit_2013         | character varying(32)       | 
+ closed_axm_opportunities                | character varying(32)       | 
+ watch_list                              | boolean                     | 
+ days_since_last_contact                 | character varying(32)       | 
+ secondary_account_name                  | character varying(64)       | 
+ account_at_risk                         | boolean                     | 
+ health_notes                            | character varying(512)      | 
+ bucket_date                             | timestamp without time zone | 
+ corporate_classification                | character varying(32)       | 
+ count_account                           | character varying(32)       | 
+ jsimpacts_data_com_does_not_auto_update | boolean                     | 
+ days_since_account_last_login           | character varying(32)       | 
+ lid_linkedin_company_id                 | integer                     | 
+ close_date_last_opp                     | timestamp without time zone | 
+ date_investor_classification_changed    | timestamp without time zone | 
+ bucket_reason                           | character varying(32)       | 
+ date_of_first_deal                      | timestamp without time zone | 
+ date_of_last_deal                       | timestamp without time zone | 
+ uses_capital_iq                         | character varying(32)       | 
+ x60_mbg_deadline                        | timestamp without time zone | 
+ days_since_last_deal                    | character varying(32)       | 
+ count_financial_strategic_buyer         | character varying(32)       | 
+ count_intermediary                      | character varying(32)       | 
+ declined                                | character varying(32)       | 
+ finra_licenses                          | character varying(32)       | 
+ date_of_ownership_change                | timestamp without time zone | 
+ company_id                              | integer                     | 
+ auto_renew_opps                         | character varying(32)       | 
+ delisted_axm_opportunities              | character varying(32)       | 
+ auto_renew                              | character varying(32)       | 
+ draft_axm_opportunities                 | character varying(32)       | 
+ due_diligence                           | character varying(32)       | 
+ count_strategic_buyer                   | character varying(32)       | 
+ tp_limit                                | character varying(32)       | 
+ is_address_book_enabled                 | boolean                     | 
+ finalizing                              | character varying(32)       | 
+ first_due_diligence_date                | timestamp without time zone | 
+ first_finalizing_date                   | timestamp without time zone | 
+ first_ioi_received_date                 | timestamp without time zone | 
+ first_ioi_sent_date                     | timestamp without time zone | 
+ first_indicated_interest_date           | timestamp without time zone | 
+ first_loi_received_date                 | timestamp without time zone | 
+ first_loi_sent_date                     | timestamp without time zone | 
+ first_received_date                     | timestamp without time zone | 
+ first_sent_date                         | timestamp without time zone | 
+ ciq_business_description                | character varying(10000)    | 
+ is_check_to_send_enabled                | boolean                     | 
+ can_see_member_names                    | boolean                     | 
+ can_filter_recommendations              | boolean                     | 
+ is_transaction_profile_search_enabled   | boolean                     | 
+ is_company_settings_enabled             | boolean                     | 
+ can_see_company_search_results          | boolean                     | 
+ edit_admin_company_license              | character varying(128)      | 
+ monthly_revenue                         | double precision            | 
+ avg_transaction_size                    | double precision            | 
+ date_off_aar                            | timestamp without time zone | 
+ date_account_saved                      | timestamp without time zone | 
+ indicated_interest                      | character varying(32)       | 
+ industries_of_interest                  | character varying(4000)     | 
+ internal_cp_notes                       | character varying(6000)     | 
+ international                           | boolean                     | 
+ days_since_last_pursuit_a               | character varying(32)       | 
+ date_of_cancellation_request            | timestamp without time zone | 
+ investor_classification                 | character varying(64)       | 
+ acv_up_for_renewal                      | double precision            | 
+ requested_cancellation                  | character varying(32)       | 
+ ciq_industries_of_interest              | character varying(4000)     | 
+ is_buyer                                | boolean                     | 
+ is_seller                               | boolean                     | 
+ ciq_geographies_of_interest             | character varying(1200)     | 
+ ciq_stages_of_interest                  | character varying(256)      | 
+ lois_received                           | character varying(32)       | 
+ lois_sent                               | character varying(32)       | 
+ last_due_diligence_date                 | timestamp without time zone | 
+ last_finalizing_date                    | timestamp without time zone | 
+ last_ioi_received_date                  | timestamp without time zone | 
+ last_ioi_sent_date                      | timestamp without time zone | 
+ last_indicated_interest_date            | timestamp without time zone | 
+ last_loi_received_date                  | timestamp without time zone | 
+ last_loi_sent_date                      | timestamp without time zone | 
+ last_received_date                      | timestamp without time zone | 
+ last_sent_date                          | timestamp without time zone | 
+ ciq_investment_transaction_types        | character varying(128)      | 
+ source                                  | character varying(64)       | 
+ link_to_opportunities                   | character varying(512)      | 
+ office_id                               | character varying(32)       | 
+ number_of_portfolio_companies           | character varying(32)       | 
+ tier                                    | character varying(64)       | 
+ auto_bucket_date                        | timestamp without time zone | 
+ mtmc_conversion_date                    | timestamp without time zone | 
+ global_region                           | character varying(32)       | 
+ days_left_in_mbg_when_cancel_requested  | character varying(32)       | 
+ company_type_service_provider           | character varying(32)       | 
+ member_since                            | timestamp without time zone | 
+ member_type                             | character varying(32)       | 
+ last_activity_date_calc                 | timestamp without time zone | 
+ deal_volume_rating                      | character varying(32)       | 
+ monthly_payment1_del                    | character varying(32)       | 
+ ebitda                                  | character varying(32)       | 
+ of_transactions_as_buyer                | character varying(32)       | 
+ net_income                              | character varying(32)       | 
+ pursuit_rate_rating                     | character varying(32)       | 
+ record_type_label                       | character varying(32)       | 
+ consent                                 | character varying(32)       | 
+ axm_unique_slug_id                      | character varying(32)       | 
+ premium_event_access                    | boolean                     | 
+ date_added_to_aar                       | timestamp without time zone | 
+ ciq_import_date                         | timestamp without time zone | 
+ international_ciq_corp_dev              | boolean                     | 
+ industry_hoover_s                       | character varying(128)      | 
+ ebitda_10                               | character varying(32)       | 
+ open_axm_opportunities                  | character varying(32)       | 
+ license_end_date                        | timestamp without time zone | 
+ industry_app                            | character varying(64)       | 
+ annual_revenue_m                        | character varying(32)       | 
+ vendor_clean_date                       | timestamp without time zone | 
+ ebitda_10_m                             | character varying(32)       | 
+ license_type                            | character varying(32)       | 
+ company_email                           | character varying(64)       | 
+ payment_frequency                       | character varying(32)       | 
+ payment_type_del                        | character varying(32)       | 
+ public_opp_revenue                      | character varying(32)       | 
+ is_messaging_enabled                    | boolean                     | 
+ is_deal_log_enabled                     | boolean                     | 
+ is_deal_log_download_enabled            | boolean                     | 
+ are_draft_deals_deleted                 | boolean                     | 
+ can_send_network_updates                | boolean                     | 
+ public_opp_ebitda                       | character varying(32)       | 
+ can_download_buyer_lists                | boolean                     | 
+ public_opp_industry                     | integer                     | 
+ days_left_in_term                       | character varying(32)       | 
+ moa                                     | character varying(32)       | 
+ primary_campaign_source                 | character varying(32)       | 
+ axm_public_id                           | character varying(32)       | 
+ date_of_last_cancellation               | timestamp without time zone | 
+ edit_owner                              | character varying(128)      | 
+ forced_update_datetime                  | timestamp without time zone | 
+ force_account_update                    | boolean                     | 
+ days_since_last_contact_non_formula     | character varying(32)       | 
+ bucket_retrieval_date                   | timestamp without time zone | 
+ days_since_bucket_retrieval             | character varying(32)       | 
+ received                                | character varying(32)       | 
+ region                                  | character varying(32)       | 
+ rejected                                | character varying(32)       | 
+ axm_license_is_active                   | boolean                     | 
+ axm_msg_quota                           | character varying(32)       | 
+ days_since_bucket_retrieval_nonformula  | character varying(32)       | 
+ past_conferences_attended               | character varying(512)      | 
+ is_call_button_enabled                  | boolean                     | 
+ finalizing_buyer                        | character varying(32)       | 
+ withdrawn_buyer                         | character varying(32)       | 
+ declined_buyer                          | character varying(32)       | 
+ rejected_buyer                          | character varying(32)       | 
+ indicated_interest_buyer                | character varying(32)       | 
+ due_diligence_buyer                     | character varying(32)       | 
+ original_opportunity_owner              | character varying(32)       | 
+ sent                                    | character varying(32)       | 
+ recycle_code                            | character varying(16)       | 
+ first_pursued_date                      | timestamp without time zone | 
+ days_since_bucketing                    | character varying(32)       | 
+ days_since_bucketing_non_formula        | character varying(64)       | 
+ key_account_flag                        | boolean                     | 
+ total_pursuits_fq                       | character varying(32)       | 
+ senior_debt_del                         | boolean                     | 
+ target_rating                           | character varying(32)       | 
+ early_del                               | boolean                     | 
+ time_zone                               | character varying(32)       | 
+ minority_growth                         | boolean                     | 
+ change_of_control_del                   | boolean                     | 
+ recapitalization_del                    | boolean                     | 
+ total_axm_opportunities                 | character varying(32)       | 
+ total_pursuits_a                        | character varying(32)       | 
+ minority_growth_debt                    | boolean                     | 
+ largest_fund_m                          | double precision            | 
+ totango_active_users_last_14_days       | character varying(32)       | 
+ totango_engagement_change               | character varying(32)       | 
+ totango_engagement                      | character varying(32)       | 
+ totango_insights                        | character varying(32)       | 
+ coverage                                | character varying(64)       | 
+ totango_account_health_icon             | character varying(128)      | 
+ first_letter_of_company_name            | character varying(32)       | 
+ totango_account_health_reason           | character varying(64)       | 
+ totango_account_health                  | character varying(32)       | 
+ company_email_convention                | character varying(64)       | 
+ days_since_last_deal_non_formula        | character varying(32)       | 
+ replied                                 | character varying(32)       | 
+ total_deals_2012                        | character varying(32)       | 
+ total_pursuits_2012                     | character varying(32)       | 
+ total_active_members_2012               | character varying(32)       | 
+ corp_dev_team_size                      | character varying(64)       | 
+ totango_last_update                     | timestamp without time zone | 
+ market_cap_mm                           | character varying(32)       | 
+ revenue                                 | character varying(32)       | 
+ google_finance_search                   | character varying(512)      | 
+ withdrawn                               | character varying(32)       | 
+ of_contacts_uploaded                    | character varying(32)       | 
+ recycle_sub_code                        | integer                     | 
+ is_universal_url_enabled                | boolean                     | 
+ totango_online_status                   | character varying(256)      | 
+ totango_overall_time_spent              | character varying(64)       | 
+ totango_url                             | character varying(128)      | 
+ totango_usage_frequency                 | character varying(32)       | 
+ ave_monthly_payment                     | double precision            | 
+ totango_is_online                       | character varying(128)      | 
+ renewal_won_count                       | character varying(32)       | 
+ lost_opportunities                      | character varying(32)       | 
+ open_opportunities                      | character varying(32)       | 
+ publishes_deals_on_website              | boolean                     | 
+ term_length                             | character varying(32)       | 
+ total_product_value                     | double precision            | 
+ renewal_date                            | timestamp without time zone | 
+ dba                                     | character varying(512)      | 
+ ccr_clam_2_set_master                   | boolean                     | 
+ ccr_clam_2_set_number                   | character varying(32)       | 
+ ccr_clam_2_set_processed                | boolean                     | 
+ count_active_members_cm                 | character varying(32)       | 
+ active_member_account_cm                | character varying(32)       | 
+ merrill_account_owner                   | character varying(256)      | 
+ ab_trial_start_date                     | timestamp without time zone | 
+ totango_health_profile_name             | character varying(64)       | 
+ last_opp_date                           | timestamp without time zone | 
+ active_acv                              | double precision            | 
+ days_with_cancel_request_renewal        | character varying(32)       | 
+ account_owner_previous                  | character varying(32)       | 
+ revenue_level                           | character varying(32)       | 
+ industry_focus                          | character varying(32)       | 
+ minimum_ebitda                          | character varying(32)       | 
+ click_to_call_received_all_time         | character varying(64)       | 
+ special_focus                           | character varying(128)      | 
+ ceo_deals_awaiting_review               | character varying(32)       | 
+ count_active_members_lm                 | character varying(32)       | 
+ potential_owner                         | character varying(32)       | 
+ active_member_account_lm                | character varying(32)       | 
+ opt_out_of_ceo_leads                    | boolean                     | 
+ short_company_name                      | character varying(64)       | 
+ active_cr                               | double precision            | 
+ active_account_date                     | timestamp without time zone | 
+ click_to_call_received_30_days          | character varying(64)       | 
+ click_to_call_made_all_time             | character varying(32)       | 
+ client_development_priority_account     | boolean                     | 
+ click_to_call_made_30_days              | character varying(32)       | 
+ repeat_lmm_transactor                   | boolean                     | 
+ totango_health_score_at_cancellation    | character varying(32)       | 
+ totango_health_score_at_renewal         | character varying(32)       | 
+ terms_of_service_date                   | timestamp without time zone | 
+ invoice_outstanding                     | boolean                     | 
+ member_price_segment                    | character varying(32)       | 
+ member_support_segment                  | character varying(32)       | 
+ axm_company_type                        | character varying(32)       | 
+ case_safe_id                            | character varying(32)       | 
+ upgrade_path                            | character varying(32)       | 
+ axial_mapped_account_type               | character varying(32)       | 
+ company_type_mismatch                   | boolean                     | 
+ days_between_save_and_contract_renewal  | integer                     | 
+ company_type_full_name                  | character varying(32)       | 
+ membership_level                        | character varying(64)       | 
+ zuora_active                            | character varying(64)       | 
+ zuora_customer_priority                 | character varying(64)       | 
+ zuora_number_of_locations               | character varying(64)       | 
+ zuora_sla_expiration_date               | timestamp without time zone | 
+ zuora_sla_serial_number                 | character varying(64)       | 
+ zuora_sla                               | character varying(64)       | 
+ zuora_upsell_opportunity                | character varying(64)       | 
+ company_type                            | character varying(32)       | 
+ average_deal_ebitda                     | character varying(64)       | 
+ average_annual_dealflow                 | character varying(32)       | 
+ transaction_focus                       | character varying(32)       | 
+ dealflow_rating                         | character varying(32)       | 
+ deal_size_rating                        | character varying(32)       | 
+ level_of_interest                       | character varying(32)       | 
+ count_client                            | character varying(32)       | 
+ previous_account_owner_id               | character varying(32)       | 
+ geographic_focus                        | character varying(64)       | 
+ google_search_acquisitions              | character varying(512)      | 
+ original_monthly_revenue                | double precision            | 
+ axm_platform_slug                       | character varying(128)      | 
+ account_last_login_date                 | timestamp without time zone | 
+ marketplace_profile                     | character varying(256)      | 
+ marketplace_profile_transactions        | character varying(256)      | 
+ original_member_price_segment           | character varying(32)       | 
+ last_app_use_date                       | timestamp without time zone | 
+ ciq_most_recent_transaction_date        | timestamp without time zone | 
+ buy_side_vs_sell_side                   | character varying(32)       | 
+ active_tps                              | character varying(32)       | 
+ tp_limit_exceeded                       | character varying(32)       | 
+ account_owner_role                      | character varying(32)       | 
+ usage_last_30_days                      | character varying(32)       | 
+ masqueraded_last_90_days                | integer                     | 
+ key_member                              | boolean                     | not null
+ total_aum                               | bigint                      | 
+ below_tp_limit                          | boolean                     | not null
+ active_company_profile                  | boolean                     | not null
+ date_of_active_company_profile          | date                        | 
+ axm_license_type                        | character varying(16)       | 
+ effective_timestamp                     | timestamp without time zone | not null
+ employees_range                         | character varying(128)      | 
+ opps_at_auto_renewal__c                 | integer                     | 
+

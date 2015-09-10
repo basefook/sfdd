@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+# create tables for SF account dedup/search
+
+import re
+import urllib
+import sqlalchemy as sa
+
+from sfdd.db import models
+from sfdd.db.models import SalesforceAccount, Company, URL, CompanyURL
+from sfdd.db.util import quick_sessionmaker, scoped_session
+
+
+def create_tables(db_session):
+    engine = db_session.get_bind()
+    models.Base.metadata.create_all(engine)
+
+
+def init_tables():
+    with scoped_session(quick_sessionmaker()) as db_session:
+        create_tables(db_session)
+        sf_company_batch = []
+        for i, sf_company in enumerate(db_session.query(SalesforceAccount).yield_per(256)):
+            sf_company_batch.append(sf_company)
+            print('{:7}: {}'.format(i, sf_company.name))
+            if len(sf_company_batch) == 512:
+                _insert_companies(sf_company_batch)
+                sf_company_batch = []
+        if sf_company_batch:
+            _insert_companies(sf_company_batch)
+
+
+def _insert_companies(sf_companies):
+    with scoped_session(quick_sessionmaker()) as db_session:
+        for c in sf_companies:
+            # normalize company name string
+            company_name = re.sub(r'[^a-zA-Z0-9\s]', '', c.name.lower())
+            company_name = re.sub('\s+', ' ', company_name)
+            company_name = ' '.join(s for s in company_name.split()
+                                    if s not in Company.CORPORATE_SUFFIXES)
+            # prepare URL for urlparse
+            company_url = c.url if c.url else ''
+            if company_url and (not re.match(r'https?://', company_url)):
+                company_url = 'http://' + company_url
+
+            company = Company(name=company_name, dimension_id=c.dimension_id)
+            db_session.add(company)
+            db_session.flush()
+
+            # insert company and url data
+            url_id = None
+            if company_url:
+                domain_name, path = _extract_domain_and_path(company_url)
+                if domain_name:
+                    data = db_session\
+                        .query(URL._id, CompanyURL)\
+                        .outerjoin(CompanyURL,
+                                sa.and_(CompanyURL.url_id == URL._id,
+                                        CompanyURL.company_id == company._id))\
+                        .filter(URL.domain == domain_name)\
+                        .first()
+                    url_id, company_url = data if data else (None, None)
+                    if not url_id:
+                        url_rec = URL(domain=domain_name, path=path)
+                        db_session.add(url_rec)
+                        db_session.flush()
+                        url_id = url_rec._id
+                    if not company_url:
+                        db_session.add(CompanyURL(url_id=url_id, company_id=company._id))
+
+        db_session.commit()
+
+def _extract_domain_and_path(url):
+    try:
+        parsed = urllib.parse.urlparse(url)
+        domain_name = parsed.netloc.lower().lstrip('www.')
+        return (domain_name, parsed.path)
+    except ValueError:
+        # TODO: log this
+        return (None, None)
+
+
+if __name__ == '__main__':
+    init_tables()
