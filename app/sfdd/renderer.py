@@ -5,11 +5,6 @@ from datetime import datetime, timedelta
 from .util import to_timestamp
 
 
-__all__ = [
-    'json_renderer',
-]
-
-
 def json_renderer():
     def datetime_adapter(dt, req):
         return to_timestamp(dt)

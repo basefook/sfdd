@@ -1,25 +1,18 @@
+import urllib
 import sqlalchemy as sa
 
-from pyramid.view import view_config, view_defaults
-
-from sfdd.db.models import Company
+from sfdd.db.models import Company, Domain
 from sfdd.constants import SUCCESS
-from sfdd.contexts import CompanyContext
-from sfdd.json import json_body, json_schemas
+from sfdd.lib.view import View, json_body, api_defaults, api_config
+from sfdd.json_schemas import CompanyBatchDocument
 
 
-class View(object):
-    def __init__(self, context, request):
-        self.request = request
-        self.context = context
-
-
-@view_defaults(renderer='json', route_name='companies')
+@api_defaults(route_name='companies')
 class CompaniesView(View):
 
-    @view_config(request_method='GET')
+    @api_config(request_method='GET')
     def search_companies(self):
-        limit = self.request.GET.get('limit', 25)
+        limit = self.request.GET.get('limit', 10)
         matches = self.find_matches(
             self.request.db_session,
             Company(name=self.request.GET.get('name', ''),
@@ -32,75 +25,98 @@ class CompaniesView(View):
             'matches': matches
         }
 
-    @view_config(request_method='POST')
-    @json_body(json_schemas.CompanyJsonSchema, role='creator')
-    def insert_company(self):
-        json_body = self.request.json
-        company = Company(name=json_body['name'],
-                          url=json_body.get('url'),
-                          state=json_body.get('state'),
-                          city=json_body.get('city'),
-                          postal_code=json_body.get('postal_code'))
-        self.request.db_session.add(company)
+    @api_config(request_method='POST')
+    @json_body(CompanyBatchDocument, role='creator')
+    def insert_companies(self):
+        companies = []
+        for company_json in self.request.json['companies']:
+            domain = None
+            url = company_json.get('url').lower()
+            if url:
+                domain_name = urllib.parse.urlparse(url).netloc.lower()
+                domain = self.request.db_session.query(Domain)\
+                    .filter_by(name=domain_name)
+                if not domain:
+                    domain = Domain(name=domain_name)
+                    self.request.db_session.add(domain)
+            company = Company(name=company_json['name'].lower(),
+                              url=url,
+                              state=company_json.get('state'),
+                              city=company_json.get('city'),
+                              postal_code=company_json.get('postal_code'))
+            company.domain = domain
+            companies.append(company)
+        self.request.db_session.add_all(companies)
         return SUCCESS
 
     @staticmethod
     def find_matches(db_session, src, limit):
-        name_similarity = sa.func.similarity(src.name, Company.name)\
-            .label('name')
-        url_similarity = sa.func.similarity(src.url, Company.url)\
-            .label('url')
-        loc_similarity = sa.func.similarity(src.loc_key, Company.loc_key)\
-            .label('loc')
-        ave_similarity = (
-            (name_similarity + url_similarity + loc_similarity) / 3.0)\
-            .label('ave')
+        compare_names = (src.name and src.name is not None)
+        compare_urls = (src.url and src.url is not None)
+
+        projection = [
+            Company._id.label('company_id'),
+            Company.name.label('company_name'),
+            Company.account_id.label('company_account_id'),
+            Company.company_id.label('company_company_id'),
+        ]
+
+        similarities = []
+        order_by = []
+
+        if compare_names:
+            name_similarity = sa.func.similarity(src.name.lower(), Company.name).label('name_score')
+            projection.append(name_similarity)
+            similarities.append(name_similarity)
+            order_by.append(name_similarity.desc())
+
+        if compare_urls:
+            url_similarity = sa.func.similarity(src.url, Company.url).label('url_score')
+            projection.append(url_similarity)
+            similarities.append(url_similarity)
+            order_by.append(url_similarity.desc())
+
+        if not similarities:
+            raise Exception('name or url query params missing')
+
+        ave_similarity = (sum(similarities) / len(similarities)).label('ave_score')
+        projection.append(ave_similarity)
+
         query = db_session\
-            .query(Company._id.label('company_id'),
-                   Company.name.label('company_name'),
-                   ave_similarity,
-                   name_similarity,
-                   url_similarity,
-                   loc_similarity)\
-            .order_by(ave_similarity.desc(),
-                      name_similarity.desc(),
-                      url_similarity.desc(),
-                      loc_similarity.desc())\
+            .query(*projection)\
+            .order_by(ave_similarity.desc(), *order_by)\
             .limit(limit)
+
         matches = []
         for rec in query:
+            score = {
+                'ave': round(rec.ave_score, 3),
+            }
+            if compare_names:
+                score['name'] = round(rec.name_score, 3)
+            if compare_urls:
+                score['url'] = round(rec.url_score, 3)
             matches.append({
                 'id': rec.company_id,
+                'account_id': rec.company_account_id,
+                'company_id': rec.company_company_id,
                 'name': rec.company_name,
-                'score': {
-                    'name': rec.name,
-                    'url': rec.url,
-                    'location': rec.loc,
-                    'average': rec.ave,
-                },
+                'score': score,
             })
         return matches
 
-@view_defaults(renderer='json', route_name='company', context=CompanyContext)
+
+@api_defaults(route_name='company')
 class CompanyView(View):
 
-    @view_config(request_method='GET')
+    @api_config(request_method='GET')
     def get_company(self):
         return SUCCESS
 
-    @view_config(request_method='PATCH')
+    @api_config(request_method='PATCH')
     def update_company(self):
         return SUCCESS
 
-    @view_config(request_method='DELETE')
+    @api_config(request_method='DELETE')
     def delete_company(self):
         return SUCCESS
-
-
-def includeme(config):
-    routes = [
-        ('companies', '/companies'),
-        ('company', '/companies/{company_id:\d+}'),
-    ]
-    for name, pattern in routes:
-        config.add_route(name, pattern)
