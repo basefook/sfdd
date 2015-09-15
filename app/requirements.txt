@@ -24,8 +24,10 @@ python-gnupg==0.3.7
 pytz==2015.4
 PyYAML==3.11
 repoze.lru==0.6
+requests==2.7.0
 simplegeneric==0.8.1
 SQLAlchemy==1.0.8
+stemming==1.0.1
 traitlets==4.0.0
 transaction==1.4.4
 translationstring==1.3
