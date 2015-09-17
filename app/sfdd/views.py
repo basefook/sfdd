@@ -1,3 +1,4 @@
+import io
 import re
 import urllib
 import sqlalchemy as sa
@@ -12,18 +13,23 @@ from sfdd.json_schemas import CompanyBatchDocument
 class CompaniesView(View):
 
     @api_config(request_method='GET')
+    @api_config(request_method='GET', request_param='format=csv', renderer='string')
     def search_companies(self):
         limit = self.request.GET.get('limit', 10)
         theta = float(self.request.GET.get('theta', 0.0))
-        matches = self.find_matches(
+        out_format = self.request.GET.get('format', 'json').lower()
+        company_url = self.request.GET.get('url', '')
+        if company_url and (not re.match(r'https?://', company_url)):
+            company_url = 'http://' + company_url
+        if out_format not in ('json', 'csv'):
+            raise Exception('invalid request format')
+        return self.find_matches(
             self.request.db_session,
             Company(name=self.request.GET.get('name', '')),
-            self.request.GET.get('url'),
+            company_url,
             limit=limit,
-            theta=theta)
-        return {
-            'matches': matches
-        }
+            theta=theta,
+            out_format=out_format)
 
     @api_config(request_method='POST')
     @json_body(CompanyBatchDocument, role='creator')
@@ -45,7 +51,8 @@ class CompaniesView(View):
                 .filter_by(key=company_name)\
                 .first()
             if not company:
-                company = Company(name=company_name)
+                account_id = c['account_id']
+                company = Company(name=company_name, account_id=account_id)
                 self.request.db_session.add(company)
                 self.request.db_session.flush()
 
@@ -78,18 +85,20 @@ class CompaniesView(View):
             parsed = urllib.parse.urlparse(url)
             domain_name = parsed.netloc.lower().lstrip('www.')
             return (domain_name, parsed.path)
-        except ValueError:
+        except ValueError as e:
             # TODO: log this
             return (None, None)
 
     @classmethod
-    def find_matches(cls, db_session, src, url, limit=10, theta=0.0):
+    def find_matches(cls, db_session, src, url, limit=10, theta=0.0, out_format='json'):
         compare_names = (src.name and src.name is not None)
         compare_urls = (url and url is not None)
 
         projection = [
             Company._id.label('company_id'),
+            Company.account_id.label('account_id'),
             Company.name.label('company_name'),
+            URL.domain.label('domain_name'),
         ]
 
         similarities = []
@@ -106,7 +115,6 @@ class CompaniesView(View):
             if domain_name:
                 url_similarity = sa.case([(URL.domain == domain_name, 1)], else_=0).label('url_score')
                 projection.append(url_similarity)
-                projection.append(URL.domain.label('domain_name'))
                 similarities.append(url_similarity)
                 order_by.append(url_similarity.desc())
             else:
@@ -118,33 +126,48 @@ class CompaniesView(View):
         ave_similarity = (sum(similarities) / len(similarities)).label('ave_score')
         projection.append(ave_similarity)
 
-        query = db_session.query(*projection)
-        if compare_urls:
-            query = query\
-                .outerjoin(CompanyURL, CompanyURL.company_id == Company._id)\
-                .outerjoin(URL, sa.and_(URL._id == CompanyURL.url_id,
-                                        URL.domain == domain_name))
-        query = query\
+        query = db_session.query(*projection)\
+            .outerjoin(CompanyURL, CompanyURL.company_id == Company._id)\
+            .outerjoin(URL, URL._id == CompanyURL.url_id)\
             .filter(ave_similarity > theta)\
             .order_by(ave_similarity.desc(), *order_by)\
             .limit(limit)
 
-        matches = []
-        for rec in query:
-            score = {
-                'ave': round(rec.ave_score, 3),
+        if out_format == 'json':
+            matches = []
+            for rec in query:
+                score = {
+                    'average': round(rec.ave_score, 3),
+                }
+                if compare_names:
+                    score['name'] = round(rec.name_score, 3)
+                if compare_urls:
+                    score['url'] = round(rec.url_score, 3)
+                matches.append({
+                    'id': rec.company_id,
+                    'account_id': rec.account_id,
+                    'url': rec.domain_name if rec.domain_name else None,
+                    'name': rec.company_name,
+                    'score': score,
+                })
+            return {
+                'matches': matches
             }
-            if compare_names:
-                score['name'] = round(rec.name_score, 3)
-            if compare_urls:
-                score['url'] = round(rec.url_score, 3)
-            matches.append({
-                'id': rec.company_id,
-                'url': rec.domain_name if (compare_urls and rec.domain_name) else None,
-                'name': rec.company_name,
-                'score': score,
-            })
-        return matches
+        elif out_format == 'csv':
+            buf = io.StringIO()
+            buf.write(','.join(['ID', 'Account ID', 'Name', 'URL', 'Average Score',
+                                'Name Score', 'URL Score']) + '\n')
+            for rec in query:
+                buf.write(','.join(str(s) for s in (
+                                    rec.company_id,
+                                    rec.account_id,
+                                    rec.company_name,
+                                    rec.domain_name if rec.domain_name else '',
+                                    round(rec.ave_score, 3),
+                                    round(rec.name_score, 3) if compare_names else '',
+                                    round(rec.url_score, 3) if compare_urls else '')) + '\n')
+            buf.seek(0)
+            return buf.read()
 
 
 @api_defaults(route_name='company')

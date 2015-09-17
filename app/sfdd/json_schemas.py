@@ -18,13 +18,12 @@ class BaseDocument(jsl.Document):
 
 
 class CompanyDocument(BaseDocument):
+    account_id = jsl.StringField(required=true_if_creator)
     name = jsl.StringField(required=true_if_creator)
     url = jsl.StringField(required=False)
     state = jsl.StringField(required=False)
     city = jsl.StringField(required=False)
     postal_code = jsl.StringField(required=False)
-    account_id = jsl.StringField(required=true_if_creator)
-    company_id = jsl.StringField(required=true_if_creator)
 
 
 class CompanyBatchDocument(BaseDocument):

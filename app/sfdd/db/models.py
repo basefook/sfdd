@@ -1,4 +1,3 @@
-import re
 import sqlalchemy as sa
 
 from stemming.porter2 import stem
@@ -16,6 +15,7 @@ class Company(Base):
     _id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String, nullable=False)
     key = sa.Column(sa.String, index=True, nullable=False)
+    account_id = sa.Column(sa.String, nullable=False)
 
     def __init__(self, *args, **kwargs):
         super(Company, self).__init__(*args, **kwargs)

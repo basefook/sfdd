@@ -39,8 +39,8 @@ class json_body(object):
         return json_validator
 
 
-def api_defaults(*args, **kwargs):
-    return pyramid.view.view_defaults(renderer='json', *args, **kwargs)
+def api_defaults(renderer='json', *args, **kwargs):
+    return pyramid.view.view_defaults(renderer=renderer, *args, **kwargs)
 
 
 def api_config(*args, **kwargs):
