@@ -23,9 +23,16 @@ class CompaniesView(View):
             company_url = 'http://' + company_url
         if out_format not in ('json', 'csv'):
             raise Exception('invalid request format')
+
+        company_name = self.request.GET.get('name', '')
+        company_name = re.sub(r'[^a-zA-Z0-9\s]', '', company_name.lower())
+        company_name = re.sub('\s+', ' ', company_name)
+        company_name = ' '.join(s for s in company_name.split()
+                                if s not in Company.CORPORATE_SUFFIXES)
+
         return self.find_matches(
             self.request.db_session,
-            Company(name=self.request.GET.get('name', '')),
+            Company(name=company_name),
             company_url,
             limit=limit,
             theta=theta,
