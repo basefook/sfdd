@@ -31,6 +31,8 @@ class CompaniesView(View):
 
     @classmethod
     def find_matches(cls, db_session, src, url, limit=10, theta=0.0):
+        """ NOTE: theta is not currently implemented.
+        """
         compare_names = (src.name and src.name is not None)
         compare_urls = (url and url is not None)
 
@@ -44,11 +46,13 @@ class CompaniesView(View):
         similarities = []
         order_by = []
 
+        name_similarity = None
+        url_similarity = None
+
         if compare_names:
             name_similarity = sa.func.similarity(src.key, Company.key).label('name_score')
             projection.append(name_similarity)
             similarities.append(name_similarity)
-            order_by.append(name_similarity.desc())
 
         if compare_urls:
             domain_name, _ = cls.extract_domain_and_path(url)
@@ -56,29 +60,27 @@ class CompaniesView(View):
                 url_similarity = sa.case([(URL.domain == domain_name, 1)], else_=0).label('url_score')
                 projection.append(url_similarity)
                 similarities.append(url_similarity)
-                order_by.append(url_similarity.desc())
             else:
                 compare_urls = False
 
         if not similarities:
             raise Exception('name or url query params missing')
 
-        ave_similarity = (sum(similarities) / len(similarities)).label('ave_score')
-        projection.append(ave_similarity)
+        if url_similarity is not None:
+            order_by.append(url_similarity.desc())
+        if name_similarity is not None:
+            order_by.append(name_similarity.desc())
 
         query = db_session.query(*projection)\
             .join(SalesforceAccount, SalesforceAccount.dimension_id == Company.dimension_id)\
             .outerjoin(CompanyURL, CompanyURL.company_id == Company._id)\
             .outerjoin(URL, URL._id == CompanyURL.url_id)\
-            .filter(ave_similarity > theta)\
-            .order_by(ave_similarity.desc(), *order_by)\
+            .order_by(*order_by)\
             .limit(limit)
 
         matches = []
         for rec in query:
-            score = {
-                'average': round(rec.ave_score, 3),
-            }
+            score = {}
             if compare_names:
                 score['name'] = round(rec.name_score, 3)
             if compare_urls:
